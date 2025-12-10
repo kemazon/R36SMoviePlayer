@@ -49,7 +49,6 @@ install_packages() {
             echo "⚠ El paquete '$package' no está instalado. Instalando..."
             check_internet
             sudo apt update && sudo apt install -y "$package"            
-            
         else
             echo "[√] '$package'"
         fi
@@ -104,9 +103,6 @@ check_and_download_zip() {
 
     return 0
 }
-
-
-
 
 install_packages
 install_mpv
