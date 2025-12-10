@@ -71,6 +71,7 @@ install_scripts() {
 	sudo cp -r . /
     sudo chmod +x /usr/bin/mpv
     mv /home/ark/Botones.sh $ROM_ROOT/tools/Botones.sh
+    mv /home/ark/movies.sh $ROM_ROOT/tools/movies.sh
 }
 
 check_and_download_zip() {
@@ -93,7 +94,7 @@ check_and_download_zip() {
         if [[ "$NEW_HASH" == "$OLD_HASH" ]]; then
             echo "✔ El ZIP no ha cambiado."
             rm "$NEW_ZIP"
-            return 1
+            return 0
         fi
     fi
 
