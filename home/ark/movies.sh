@@ -77,34 +77,40 @@ install_scripts() {
 check_and_download_zip() {
     local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
     local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
-    local TMP_HEADER="/tmp/zip_headers.txt"
+    local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
+    local HASH_FILE="$HOME/R36SMoviePlayer.sha256"
 
-    # Si ya existe localmente, preguntamos si hay algo nuevo
-    if [[ -f "$LOCAL_ZIP" ]]; then
-        local LAST_MODIFIED
-        LAST_MODIFIED=$(stat -c %y "$LOCAL_ZIP")
+    echo "⬇ Descargando ZIP temporal..."
+    curl -sL "$ZIP_URL" -o "$NEW_ZIP"
 
-        # Pedimos solo las cabeceras al servidor
-        curl -sI -H "If-Modified-Since: $LAST_MODIFIED" "$ZIP_URL" > "$TMP_HEADER"
+    local NEW_HASH
+    NEW_HASH=$(sha256sum "$NEW_ZIP" | awk '{print $1}')
 
-        # Si el servidor responde 304 significa "no hay nueva versión"
-        if grep -q "304 Not Modified" "$TMP_HEADER"; then
-            echo "✔ La versión local es la más reciente. No se descarga nada."
+    # Si existe hash previo, comparar
+    if [[ -f "$HASH_FILE" ]]; then
+        local OLD_HASH
+        OLD_HASH=$(cat "$HASH_FILE")
+
+        if [[ "$NEW_HASH" == "$OLD_HASH" ]]; then
+            echo "✔ El ZIP no ha cambiado."
+            rm "$NEW_ZIP"
             return 1
         fi
     fi
 
-    echo "⬇ Descargando nueva versión del script..."
-    curl -L "$ZIP_URL" -o "$LOCAL_ZIP"
-    echo "✔ Archivo actualizado descargado."
+    echo "⬆ Nueva versión detectada."
+    echo "$NEW_HASH" > "$HASH_FILE"
+    mv "$NEW_ZIP" "$LOCAL_ZIP"
 
     return 0
 }
 
 
 
+
 install_packages
 install_mpv
+check_and_download_zip
 add_cron_job
 
 # Extensiones admitidas (insensible a mayúsculas)
