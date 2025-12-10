@@ -48,14 +48,7 @@ install_packages() {
         if ! which "$package" &>/dev/null; then
             echo "⚠ El paquete '$package' no está instalado. Instalando..."
             check_internet
-            sudo apt update && sudo apt install -y "$package"
-            cd ~
-            curl -L "https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main" -o R36SMoviePlayer.zip
-			unzip -o R36SMoviePlayer.zip
-			cd R36SMoviePlayer-main
-			sudo cp -r . /
-            sudo chmod +x /usr/bin/mpv
-            mv /home/ark/Botones.sh $ROM_ROOT/tools/Botones.sh
+            sudo apt update && sudo apt install -y "$package"            
             
         else
             echo "[√] '$package'"
@@ -70,6 +63,45 @@ install_mpv() {
         sudo apt update && sudo apt install -y mpv --no-install-recommends
     fi
 }
+
+install_scripts() {
+    cd ~
+    curl -L "https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main" -o R36SMoviePlayer.zip
+	unzip -o R36SMoviePlayer.zip
+	cd R36SMoviePlayer-main
+	sudo cp -r . /
+    sudo chmod +x /usr/bin/mpv
+    mv /home/ark/Botones.sh $ROM_ROOT/tools/Botones.sh
+}
+
+check_and_download_zip() {
+    local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
+    local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
+    local TMP_HEADER="/tmp/zip_headers.txt"
+
+    # Si ya existe localmente, preguntamos si hay algo nuevo
+    if [[ -f "$LOCAL_ZIP" ]]; then
+        local LAST_MODIFIED
+        LAST_MODIFIED=$(stat -c %y "$LOCAL_ZIP")
+
+        # Pedimos solo las cabeceras al servidor
+        curl -sI -H "If-Modified-Since: $LAST_MODIFIED" "$ZIP_URL" > "$TMP_HEADER"
+
+        # Si el servidor responde 304 significa "no hay nueva versión"
+        if grep -q "304 Not Modified" "$TMP_HEADER"; then
+            echo "✔ La versión local es la más reciente. No se descarga nada."
+            return 1
+        fi
+    fi
+
+    echo "⬇ Descargando nueva versión del script..."
+    curl -L "$ZIP_URL" -o "$LOCAL_ZIP"
+    echo "✔ Archivo actualizado descargado."
+
+    return 0
+}
+
+
 
 install_packages
 install_mpv
