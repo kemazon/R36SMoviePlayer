@@ -100,6 +100,7 @@ check_and_download_zip() {
     echo "⬆ Nueva versión detectada."
     echo "$NEW_HASH" > "$HASH_FILE"
     mv "$NEW_ZIP" "$LOCAL_ZIP"
+    install_scripts
 
     return 0
 }
