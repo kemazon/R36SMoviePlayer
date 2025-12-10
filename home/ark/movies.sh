@@ -17,7 +17,7 @@ get_rom_root() {
 ROM_ROOT="$(get_rom_root)"
 
 CARPETA="$ROM_ROOT/movies"
-REQUIRED_PACKAGES=("mpv" "socat" "pulseaudio")
+REQUIRED_PACKAGES=("socat" "pulseaudio")
 CRON_LINE="@reboot $ROM_ROOT/tools/Botones.sh"
 
 # Verifica conexión a internet
@@ -63,7 +63,16 @@ install_packages() {
     done
 }
 
+install_mpv() {
+    if ! which "mpv" &>/dev/null; then
+        echo "⚠ El paquete 'mpv' no está instalado. Instalando..."
+        check_internet
+        sudo apt update && sudo apt install -y mpv --no-install-recommends
+    fi
+}
+
 install_packages
+install_mpv
 add_cron_job
 
 # Extensiones admitidas (insensible a mayúsculas)
