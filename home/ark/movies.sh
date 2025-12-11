@@ -88,38 +88,51 @@ install_scripts() {
 }
 
 check_and_download_zip() {
-    if ping -c 1 8.8.8.8 &>/dev/null || ping -c 1 1.1.1.1 &>/dev/null; then
-        local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
-        local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
-        local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
-        local HASH_FILE="$HOME/R36SMoviePlayer.sha256"
+    local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
+    local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
+    local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
+    local HASH_FILE="$HOME/R36SMoviePlayer.sha256"
+    local NEW_HASH
+    local OLD_HASH
 
-        echo "⬇ Buscando actualización..."
-        curl -sL "$ZIP_URL" -o "$NEW_ZIP"
+    echo "⬇ Buscando actualización..."
 
-        local NEW_HASH
-        NEW_HASH=$(sha256sum "$NEW_ZIP" | awk '{print $1}')
-
-    # Si existe hash previo, comparar
-        if [[ -f "$HASH_FILE" ]]; then
-            local OLD_HASH
-            OLD_HASH=$(cat "$HASH_FILE")
-
-            if [[ "$NEW_HASH" == "$OLD_HASH" ]]; then
-                echo "✔ No hay actualizaciones disponibles."
-                rm "$NEW_ZIP"
-                return 0
-            fi
-        fi  
+    # Primero: ¿hay internet?
+    if ! check_internet; then
+        echo "[!] Sin internet, se omite la comprobación de actualización."
+        return 0
     fi
 
-    echo "⬆ Nueva versión detectada, instalando.."
+    # Segundo: intentar descargar. Si falla, no matamos el script.
+    if ! curl -sL "$ZIP_URL" -o "$NEW_ZIP"; then
+        echo "[X] No se pudo descargar el ZIP. Continuando sin actualizar."
+        [ -f "$NEW_ZIP" ] && rm -f "$NEW_ZIP"
+        return 0
+    fi
+
+    # Tercero: calcular hash del ZIP nuevo
+    NEW_HASH=$(sha256sum "$NEW_ZIP" | awk '{print $1}')
+
+    # Si ya tenemos un hash previo, comparar
+    if [[ -f "$HASH_FILE" ]]; then
+        OLD_HASH=$(cat "$HASH_FILE")
+
+        if [[ "$NEW_HASH" == "$OLD_HASH" ]]; then
+            echo "✔ No hay actualizaciones disponibles."
+            rm -f "$NEW_ZIP"
+            return 0
+        fi
+    fi
+
+    # Si llegamos aquí, hay versión nueva
+    echo "⬆ Nueva versión detectada, instalando..."
     echo "$NEW_HASH" > "$HASH_FILE"
     mv "$NEW_ZIP" "$LOCAL_ZIP"
     install_scripts
 
     return 0
 }
+
 
 install_packages
 install_mpv
