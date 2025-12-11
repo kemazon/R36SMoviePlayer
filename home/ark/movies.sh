@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+sudo chmod 777 /tmp
+sudo chmod u+s $(which ping)
+
 get_rom_root() {
     if [ -d "/roms2" ] && [ "$(ls -A /roms2 2>/dev/null)" ]; then
         # Existe y no está vacía → la tomamos como ruta de ROMs
