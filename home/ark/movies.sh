@@ -63,10 +63,16 @@ install_packages() {
 }
 
 install_mpv() {
-    if ! which "mpv" &>/dev/null; then
+    if ! command -v mpv &>/dev/null; then
         echo "⚠ El paquete 'mpv' no está instalado. Instalando..."
-        check_internet
-        sudo apt update && sudo apt install -y mpv --no-install-recommends
+
+        if check_internet; then
+            if ! sudo apt update || ! sudo apt install -y mpv --no-install-recommends; then
+                echo "[X] No se pudo instalar 'mpv'."
+            fi
+        else
+            echo "[X] Sin internet, no se puede instalar 'mpv'."
+        fi
     fi
 }
 
@@ -82,27 +88,28 @@ install_scripts() {
 }
 
 check_and_download_zip() {
-    local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
-    local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
-    local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
-    local HASH_FILE="$HOME/R36SMoviePlayer.sha256"
+    if check_internet; then
+        local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
+        local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
+        local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
+        local HASH_FILE="$HOME/R36SMoviePlayer.sha256"
 
-    echo "⬇ Buscando actualización..."
-    curl -sL "$ZIP_URL" -o "$NEW_ZIP"
+        echo "⬇ Buscando actualización..."
+        curl -sL "$ZIP_URL" -o "$NEW_ZIP"
 
-    local NEW_HASH
-    NEW_HASH=$(sha256sum "$NEW_ZIP" | awk '{print $1}')
+        local NEW_HASH
+        NEW_HASH=$(sha256sum "$NEW_ZIP" | awk '{print $1}')
 
     # Si existe hash previo, comparar
-    if [[ -f "$HASH_FILE" ]]; then
-        local OLD_HASH
-        OLD_HASH=$(cat "$HASH_FILE")
+        if [[ -f "$HASH_FILE" ]]; then
+            local OLD_HASH
+            OLD_HASH=$(cat "$HASH_FILE")
 
-        if [[ "$NEW_HASH" == "$OLD_HASH" ]]; then
-            echo "✔ No hay actualizaciones disponibles."
-            rm "$NEW_ZIP"
-            return 0
-        fi
+            if [[ "$NEW_HASH" == "$OLD_HASH" ]]; then
+                echo "✔ No hay actualizaciones disponibles."
+                rm "$NEW_ZIP"
+                return 0
+            fi
     fi
 
     echo "⬆ Nueva versión detectada, instalando.."
