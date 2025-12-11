@@ -88,7 +88,6 @@ install_scripts() {
 }
 
 check_and_download_zip() {
-    check_internet
     local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
     local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
     local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
@@ -122,7 +121,6 @@ check_and_download_zip() {
 
 install_packages
 install_mpv
-if check_internet
 check_and_download_zip
 add_cron_job
 
