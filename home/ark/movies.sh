@@ -88,7 +88,7 @@ install_scripts() {
 }
 
 check_and_download_zip() {
-    if check_internet; then
+    if ping -c 1 8.8.8.8 &>/dev/null || ping -c 1 1.1.1.1 &>/dev/null; then
         local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
         local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
         local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
@@ -110,7 +110,8 @@ check_and_download_zip() {
                 rm "$NEW_ZIP"
                 return 0
             fi
-        fi
+        fi  
+    fi
 
     echo "⬆ Nueva versión detectada, instalando.."
     echo "$NEW_HASH" > "$HASH_FILE"
