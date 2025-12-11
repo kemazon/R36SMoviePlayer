@@ -80,7 +80,7 @@ check_and_download_zip() {
     local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
     local HASH_FILE="$HOME/R36SMoviePlayer.sha256"
 
-    echo "⬇ Descargando ZIP temporal..."
+    echo "⬇ Buscando actualización..."
     curl -sL "$ZIP_URL" -o "$NEW_ZIP"
 
     local NEW_HASH
