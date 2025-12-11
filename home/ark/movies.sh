@@ -88,6 +88,7 @@ install_scripts() {
 }
 
 check_and_download_zip() {
+    check_internet
     local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
     local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
     local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
