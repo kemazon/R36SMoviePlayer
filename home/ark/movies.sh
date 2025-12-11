@@ -121,6 +121,7 @@ check_and_download_zip() {
 
 install_packages
 install_mpv
+if check_internet
 check_and_download_zip
 add_cron_job
 
