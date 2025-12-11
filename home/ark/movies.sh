@@ -45,10 +45,17 @@ add_cron_job() {
 
 install_packages() {
     for package in "${REQUIRED_PACKAGES[@]}"; do
-        if ! which "$package" &>/dev/null; then
+        if ! command -v "$package" &>/dev/null; then
             echo "⚠ El paquete '$package' no está instalado. Instalando..."
-            check_internet
-            sudo apt update && sudo apt install -y "$package"            
+
+            if check_internet; then
+                # Ojo: el fallo lo manejamos con `if ! ...`
+                if ! sudo apt update || ! sudo apt install -y "$package"; then
+                    echo "[X] No se pudo instalar '$package'. Continuando de todos modos."
+                fi
+            else
+                echo "[X] Sin internet, no se puede instalar '$package'."
+            fi
         else
             echo "[√] '$package'"
         fi
