@@ -92,13 +92,13 @@ check_and_download_zip() {
         OLD_HASH=$(cat "$HASH_FILE")
 
         if [[ "$NEW_HASH" == "$OLD_HASH" ]]; then
-            echo "✔ El ZIP no ha cambiado."
+            echo "✔ No hay actualizaciones disponibles."
             rm "$NEW_ZIP"
             return 0
         fi
     fi
 
-    echo "⬆ Nueva versión detectada."
+    echo "⬆ Nueva versión detectada, instalando.."
     echo "$NEW_HASH" > "$HASH_FILE"
     mv "$NEW_ZIP" "$LOCAL_ZIP"
     install_scripts
