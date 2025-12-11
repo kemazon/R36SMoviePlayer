@@ -27,7 +27,7 @@ check_internet() {
         return 0
     else
         echo "[X] No hay conexión a internet. No se puede continuar con la instalación."
-		sleep 5
+		sleep 2
         return 1
     fi
 }
