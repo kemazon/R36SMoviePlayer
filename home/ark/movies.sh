@@ -28,7 +28,7 @@ check_internet() {
     else
         echo "[X] No hay conexión a internet. No se puede continuar con la instalación."
 		sleep 5
-        return 0
+        return 1
     fi
 }
 
@@ -88,29 +88,29 @@ install_scripts() {
 }
 
 check_and_download_zip() {
-    check_internet
-    local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
-    local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
-    local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
-    local HASH_FILE="$HOME/R36SMoviePlayer.sha256"
+    if check_internet; then
+        local ZIP_URL="https://codeload.github.com/kemazon/R36SMoviePlayer/zip/refs/heads/main"
+        local LOCAL_ZIP="$HOME/R36SMoviePlayer.zip"
+        local NEW_ZIP="/tmp/R36SMoviePlayer_new.zip"
+        local HASH_FILE="$HOME/R36SMoviePlayer.sha256"
 
-    echo "⬇ Buscando actualización..."
-    curl -sL "$ZIP_URL" -o "$NEW_ZIP"
+        echo "⬇ Buscando actualización..."
+        curl -sL "$ZIP_URL" -o "$NEW_ZIP"
 
-    local NEW_HASH
-    NEW_HASH=$(sha256sum "$NEW_ZIP" | awk '{print $1}')
+        local NEW_HASH
+        NEW_HASH=$(sha256sum "$NEW_ZIP" | awk '{print $1}')
 
     # Si existe hash previo, comparar
-    if [[ -f "$HASH_FILE" ]]; then
-        local OLD_HASH
-        OLD_HASH=$(cat "$HASH_FILE")
+        if [[ -f "$HASH_FILE" ]]; then
+            local OLD_HASH
+            OLD_HASH=$(cat "$HASH_FILE")
 
-        if [[ "$NEW_HASH" == "$OLD_HASH" ]]; then
-            echo "✔ No hay actualizaciones disponibles."
-            rm "$NEW_ZIP"
-            return 0
+            if [[ "$NEW_HASH" == "$OLD_HASH" ]]; then
+                echo "✔ No hay actualizaciones disponibles."
+                rm "$NEW_ZIP"
+                return 0
+            fi
         fi
-    fi
 
     echo "⬆ Nueva versión detectada, instalando.."
     echo "$NEW_HASH" > "$HASH_FILE"
